@@ -57,10 +57,10 @@ MatrixXd Tools::CalculateJacobian(const VectorXd& x_state) {
 	float c3 = (c1*c2);
 
 	//check division by zero
-	if(fabs(c1) < 0.0001){
+	const float c1 = std::max(eps, px*px + py*py)
+	float eps = 0.001;
+
 	std::cout << "CalculateJacobian () - Error - Division by Zero" <<std::endl;
-	return Hj;
-	}
 
 	// Compute Jacobian matrix
 	Hj << (px/c2), (py/c2), 0, 0,

@@ -46,12 +46,25 @@ void KalmanFilter::Update(const VectorXd &z) {
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
   
   // Update state 
-  VectorXd z_pred = H_ * x_;
-  VectorXd y = z - z_pred;
-  MatrixXd S = H_ * P_ * H_.transpose() + R_;
-  MatrixXd PHt = P_ * H_.transpose();
-  MatrixXd K = PHt * S.inverse();
+  const float px = x_(0,0);
+  const float py = x_(1,0);
+  const float vx = x_(2,0);
+  const float vy = x_(3,0);
+  const float eps = 1e-5;
+  const float rho = sqrt(px * px + py * py);
+  const float phi = atan2(py, px);
+  const float rho_dot = (px * vx + py * vy) / (eps + rho);
+  
+  VectorXd z_pred(3);
+  z_pred << rho, phi, rho_dot;
 
+  VectorXd y = z - z_pred;
+  MatrixXd Ht = H_.transpose();
+  MatrixXd S = H_ * P_ * Ht + R_;
+  MatrixXd Si = S.inverse();
+  MatrixXd PHt = P_ * Ht;
+  MatrixXd K = PHt * Si;
+  
   // New estimate
   x_ = x_ + (K * y);
   long x_size = x_.size();
